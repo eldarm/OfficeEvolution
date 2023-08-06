@@ -11,14 +11,30 @@ import java.util.Random;
  * RGB color.
  */
 public class RGB {
+	Random r = new Random();
+
 	/**
 	 * Generate a random RGB color.
 	 */
 	public RGB() {
-		Random r = new Random();
 		R = r.nextInt(256);
 		G = r.nextInt(256);
 		B = r.nextInt(256);
+	}
+
+	private int mutateInt(int v, double mutationRate) {
+		System.out.printf("\n%d %f\n", v, mutationRate);
+		v = mutationRate == 0.0 ? v : v + r.nextInt((int)(mutationRate * 256)) - (int)(mutationRate * 128);
+		return v < 0 ? 0 : v > 255 ? 255 : v;
+	}
+
+	/**
+	 * Mutate the RGB color.
+	 */
+	public RGB(RGB c, double mutationRate) {
+		R = mutateInt(c.R,mutationRate);
+		G = mutateInt(c.G,mutationRate);
+		B = mutateInt(c.B,mutationRate);
 	}
 
 	/**
