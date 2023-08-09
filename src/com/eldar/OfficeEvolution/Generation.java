@@ -39,8 +39,8 @@ public class Generation {
 	// Must be in the same order as enum value underneath.
 	public final static String[] COMPANY_LABELS = { "Heaven", "Hell",
 			"Low Selective", "Too selective", "Balanced selection",
-			"Poor managers", "Fire at random", "Changing world",
-			"With layoffs", "Market Pressure" };
+			"Poor managers", "Fire at random", "Changing world", "With layoffs",
+			"Market Pressure" };
 	public final static int COMPANY_HEAVEN = 0;
 	public final static int COMPANY_HELL = 1;
 	public final static int COMPANY_LOW_SELECTIVE = 2;
@@ -192,7 +192,7 @@ public class Generation {
 			r.mutationRate = 0.0;
 			r.selectionMode = SELECTION_TARGET;
 			r.mutationSource = SELECION_NONE;
-			r.changeTargetEvery = 0;
+			r.changeTargetEvery = 100;
 			r.layoffVolume = 0.0;
 			r.recoveryInc = 0.01;
 			r.marketPressure = 0.02;
@@ -228,7 +228,16 @@ public class Generation {
 	 */
 	public void nextGeneration() {
 		generationCount++;
+		
+		int rs = 0, gs = 0, bs = 0; // Sum of individual colors.
+		for (int i = 0; i < size; i++) {
+			rs += drones[i].R;
+			gs += drones[i].G;
+			bs += drones[i].B;
+		}
+		average = new RGB(rs / size, gs / size, bs / size);
 		System.out.println("Distance to target: " + target.Distance(average));
+		
 		if (prm.changeTargetEvery != 0
 				&& generationCount % prm.changeTargetEvery == 0) {
 			target = new RGB();
@@ -245,7 +254,7 @@ public class Generation {
 						* (1 - fitDouble(prm.marketPressure, 0.0, 0.8)));
 			}
 
-		} else if (size < maxSize ) {
+		} else if (size < maxSize) {
 			// Recovery from layoffs and market pressure.
 			System.out.println("Size: " + size);
 			double recoveryRate = prm.recoveryInc > 0 ? prm.recoveryInc : 0.01;
@@ -267,16 +276,6 @@ public class Generation {
 			;
 			size += incr;
 		}
-
-		int rs = 0, gs = 0, bs = 0; // Sum of individual colors.
-		for (var t : drones) {
-			rs += t.R;
-			gs += t.G;
-			bs += t.B;
-		}
-
-		average = new RGB(rs / drones.length, gs / drones.length,
-				bs / drones.length);
 
 		// Find those to replace.
 		for (int i = 0; i < size; i++) {
