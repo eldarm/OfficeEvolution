@@ -23,7 +23,7 @@ public class RGB {
 	}
 
 	private int mutateInt(int v, double mutationRate) {
-		System.out.printf("\n%d %f\n", v, mutationRate);
+		// System.out.printf("\n%d %f\n", v, mutationRate);
 		v = mutationRate == 0.0 ? v : v + r.nextInt((int)(mutationRate * 256)) - (int)(mutationRate * 128);
 		return v < 0 ? 0 : v > 255 ? 255 : v;
 	}

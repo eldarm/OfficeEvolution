@@ -1,5 +1,6 @@
 package OfficeEvolution;
 
+import java.awt.Canvas;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -24,22 +25,42 @@ public class MainScreen extends JFrame {
 	 * 
 	 */
 	private static final long serialVersionUID = 7658583780168366268L;
-	private JPanel paintPanel;
 	private JPanel controlPanel;
+	//private JPanel paintPanel;
+	private Canvas paintPanel;
 	private JTextField attritionTextField;
-	private JTextField minDistanceTextField;
 	private JTextField managementErrorsTextField;
 	private JTextField mutationRateTextField;
 	private JTextField changeTargetEveryTextField;
+	private JTextField layoffVolumeTextField;
+	private JTextField recoveryIncTextField;
+	private JTextField marketPressureTextField;
 	private JComboBox<String> presetList;
 	private JComboBox<String> memberList;
 	private JLabel hiringCostLabel;
 	private JLabel devTargetLabel;
 	private JLabel devMajorityLabel;
 
-	private final static String HIRING_COST_LABEL = "Hiring cost: %d🍄 ₿";
+	private final static String HIRING_COST_LABEL = "Hiring cost: %d 🍄";
 	private final static String DEV_TARGET_LABEL = "Deviation from target: %f";
 	private final static String DEV_MAJORITY_LABEL = "Deviation from majority: %f";
+	
+	private final static Dimension minSize = new Dimension(0, 300); //?
+
+	private JTextField addParam(String text, String defValue,
+			JTextField textField) {
+		var panel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+		panel.setBackground(Color.BLUE);
+		var label = new JLabel(text);
+		label.setForeground(Color.YELLOW);
+		panel.add(label);
+		textField = new JTextField(defValue);
+		textField.setHorizontalAlignment(JTextField.LEFT);
+		textField.setMinimumSize(minSize); //?
+		panel.add(textField);
+		controlPanel.add(panel);
+		return textField;
+	}
 
 	public MainScreen() {
 		final int width = 900;
@@ -89,7 +110,7 @@ public class MainScreen extends JFrame {
 
 		// Pick predefined configuration.
 		{
-			var presetPanel = new JPanel(new FlowLayout());
+			var presetPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
 			presetPanel.setBackground(Color.BLUE);
 			var presetLabel = new JLabel("Pick a preset company:");
 			presetLabel.setForeground(Color.YELLOW);
@@ -100,6 +121,7 @@ public class MainScreen extends JFrame {
 				JComboBox companyList = (JComboBox) event.getSource();
 				setParams(Generation
 						.getPresetCompany(companyList.getSelectedIndex()));
+				controlPanel.repaint();
 				System.out.println(
 						"Selected Item  = " + companyList.getSelectedItem());
 				System.out.println(
@@ -112,45 +134,15 @@ public class MainScreen extends JFrame {
 		}
 
 		// Parameters: attrition 0.0..1.0, 0.0 = None.
-		{
-			var attritionPanel = new JPanel(new FlowLayout());
-			attritionPanel.setBackground(Color.BLUE);
-			var attritionLabel = new JLabel("Attrition per gen:");
-			attritionLabel.setForeground(Color.YELLOW);
-			attritionPanel.add(attritionLabel);
-			attritionTextField = new JTextField("    0.00");
-			attritionPanel.add(attritionTextField);
-			controlPanel.add(attritionPanel);
-		}
-
-		// Parameters: minDistance 0.0..1.0, 1.0 = None
-		{
-			var minDistancePanel = new JPanel(new FlowLayout());
-			minDistancePanel.setBackground(Color.BLUE);
-			var minDistanceLabel = new JLabel("Min distance:");
-			minDistanceLabel.setForeground(Color.YELLOW);
-			minDistancePanel.add(minDistanceLabel);
-			minDistanceTextField = new JTextField("    1.00");
-			minDistancePanel.add(minDistanceTextField);
-			controlPanel.add(minDistancePanel);
-		}
-
+		attritionTextField = addParam("Attrition per gen:", "    0.00",
+				attritionTextField);
 		// Parameters: managementErrors 0.0..1.0
-		{
-			var managemntErrorsPanel = new JPanel(new FlowLayout()); // new
-																		// JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
-			managemntErrorsPanel.setBackground(Color.BLUE);
-			var managementErrorsLabel = new JLabel("Management errors:");
-			managementErrorsLabel.setForeground(Color.YELLOW);
-			managemntErrorsPanel.add(managementErrorsLabel);
-			managementErrorsTextField = new JTextField("  0.00");
-			managemntErrorsPanel.add(managementErrorsTextField);
-			controlPanel.add(managemntErrorsPanel);
-		}
+		managementErrorsTextField = addParam("Management errors:", "    0.00",
+				managementErrorsTextField);
 
 		// How new members are selected.
 		{
-			var selectionCriteriaPanel = new JPanel(new FlowLayout());
+			var selectionCriteriaPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
 			selectionCriteriaPanel.setBackground(Color.BLUE);
 			var selectionCriteriaLabel = new JLabel("Selection to replace:");
 			selectionCriteriaLabel.setForeground(Color.YELLOW);
@@ -170,7 +162,7 @@ public class MainScreen extends JFrame {
 
 		// How new members are formed.
 		{
-			var newMembersCriteriaPanel = new JPanel(new FlowLayout());
+			var newMembersCriteriaPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
 			newMembersCriteriaPanel.setBackground(Color.BLUE);
 			var newMembersCriteriaLabel = new JLabel("Base for replacement:");
 			newMembersCriteriaLabel.setForeground(Color.YELLOW);
@@ -182,28 +174,20 @@ public class MainScreen extends JFrame {
 		}
 
 		// Mutation rate for new members.
-		{
-			var mutationRatePanel = new JPanel(new FlowLayout());
-			mutationRatePanel.setBackground(Color.BLUE);
-			var mutationRateLabel = new JLabel("Mutation rate:");
-			mutationRateLabel.setForeground(Color.YELLOW);
-			mutationRatePanel.add(mutationRateLabel);
-			mutationRateTextField = new JTextField("  0.00");
-			mutationRatePanel.add(mutationRateTextField);
-			controlPanel.add(mutationRatePanel);
-		}
-
+		mutationRateTextField = addParam("Mutation rate:", "    0.00",
+				mutationRateTextField);
 		// Change the target every N generations.
-		{
-			var changeTargetEveryPanel = new JPanel(new FlowLayout());
-			changeTargetEveryPanel.setBackground(Color.BLUE);
-			var changeTargetEveryLabel = new JLabel("Change target every:");
-			changeTargetEveryLabel.setForeground(Color.YELLOW);
-			changeTargetEveryPanel.add(changeTargetEveryLabel);
-			changeTargetEveryTextField = new JTextField("  0");
-			changeTargetEveryPanel.add(changeTargetEveryTextField);
-			controlPanel.add(changeTargetEveryPanel);
-		}
+		changeTargetEveryTextField = addParam("Change target every:", "      0",
+				changeTargetEveryTextField);
+		// Do the layoffs volume at the time of the market change.
+		layoffVolumeTextField = addParam("Layoffs size:", "    0.00",
+				layoffVolumeTextField);
+		// Change the layoffs volume at the time of the market change.
+		recoveryIncTextField = addParam("Recovery increment:", "    0.00",
+				recoveryIncTextField);
+		// Market pressure.
+		marketPressureTextField = addParam("Market pressure:", "    0.00",
+				marketPressureTextField);
 
 		// Output: Hiring cost in tugrics.
 		hiringCostLabel = new JLabel(String.format(HIRING_COST_LABEL, 0));
@@ -224,11 +208,12 @@ public class MainScreen extends JFrame {
 		// controlPanel.add(new JLabel("---"));
 
 		// Main panel to draw the results.
-		paintPanel = new JPanel();
+		//paintPanel = new JPanel();
+		paintPanel = new Canvas();
 		final int paintIndent = controlPanel.getWidth() + controlIndent;
 		paintPanel.setBounds(paintIndent, 10,
 				width - paintIndent - controlIndent, height - 40);
-		paintPanel.setLayout(null);
+		//paintPanel.setLayout(null);
 		paintPanel.setBackground(Color.lightGray);
 		globalPanel.add(paintPanel);
 	}
@@ -236,13 +221,30 @@ public class MainScreen extends JFrame {
 	private double paramToDouble(String name, JTextField v, double deflt) {
 		double res;
 		try {
-			res = Double.valueOf(v.getText());
+			res = Double.valueOf(v.getText().trim());
 		} catch (java.lang.NumberFormatException e) {
 			System.out.println("Attrition is not set: " + e);
 			JOptionPane.showInternalMessageDialog(null,
-					name + " bad format, replaced to " + Double.toString(deflt),
+					name + ": " + v.getText() + " bad format, replaced to "
+							+ Double.toString(deflt),
 					"Format error", JOptionPane.ERROR_MESSAGE);
 			v.setText("    " + Double.toString(deflt));
+			res = deflt;
+		}
+		return res;
+	}
+
+	private int paramToInt(String name, JTextField v, int deflt) {
+		int res;
+		try {
+			res = Integer.valueOf(v.getText().trim());
+		} catch (java.lang.NumberFormatException e) {
+			System.out.println("Attrition is not set: " + e);
+			JOptionPane.showInternalMessageDialog(null,
+					name + ": " + v.getText() + " bad format, replaced to "
+							+ Integer.toString(deflt),
+					"Format error", JOptionPane.ERROR_MESSAGE);
+			v.setText("    " + Integer.toString(deflt));
 			res = deflt;
 		}
 		return res;
@@ -251,28 +253,34 @@ public class MainScreen extends JFrame {
 	private Generation.ExperimentParams getParams() {
 		var res = new Generation.ExperimentParams();
 		res.attrition = paramToDouble("Attrition", attritionTextField, 0.0);
-		res.minDistance = paramToDouble("Minimum distance",
-				minDistanceTextField, 0.0);
-		res.managementErrors = paramToDouble("Management erros",
+		res.managementErrors = paramToDouble("Management Erros",
 				managementErrorsTextField, 0.0);
-		res.mutationRate = paramToDouble("Mutation rate",
-				changeTargetEveryTextField, 0.0);
+		res.mutationRate = paramToDouble("Mutation Rate", mutationRateTextField,
+				0.0);
 		res.selectionMode = presetList.getSelectedIndex();
 		res.mutationSource = memberList.getSelectedIndex();
-		res.changeTargetEvery = Integer
-				.valueOf(changeTargetEveryTextField.getText());
+		res.changeTargetEvery = paramToInt("Change Target Every",
+				changeTargetEveryTextField, 0);
+		res.layoffVolume = paramToDouble("Layoff Volume", layoffVolumeTextField,
+				0.0);
+		res.recoveryInc = paramToDouble("Recovery Increment",
+				recoveryIncTextField, 0);
+		res.marketPressure = paramToDouble("Marker Pressure",
+				marketPressureTextField, 0);
 		return res;
 	}
 
 	private void setParams(Generation.ExperimentParams p) {
 		attritionTextField.setText(Double.toString(p.attrition));
-		minDistanceTextField.setText(Double.toString(p.minDistance));
 		managementErrorsTextField.setText(Double.toString(p.managementErrors));
-		changeTargetEveryTextField.setText(Double.toString(p.mutationRate));
+		mutationRateTextField.setText(Double.toString(p.mutationRate));
 		presetList.setSelectedIndex(p.selectionMode);
 		memberList.setSelectedIndex(p.mutationSource);
 		changeTargetEveryTextField
 				.setText(Integer.toString(p.changeTargetEvery));
+		layoffVolumeTextField.setText(Double.toString(p.layoffVolume));
+		recoveryIncTextField.setText(Double.toString(p.recoveryInc));
+		marketPressureTextField.setText(Double.toString(p.marketPressure));
 	}
 
 	private void RunExperiment() {
@@ -291,7 +299,8 @@ public class MainScreen extends JFrame {
 		for (int row = 0; row < d.height; row++) {
 			// System.out.printf("%d\n", row);
 			RGB[] points = gen.getPoints();
-			int wPoints = points.length < wDraw ? points.length : wDraw;
+			int pSize = gen.getSize();
+			int wPoints = pSize < wDraw ? pSize : wDraw;
 			int pointsOffset = (wDraw - wPoints) / 2;
 			for (int col = 0; col < wPoints; col++) {
 				g.setColor(points[col].getColor());
@@ -310,6 +319,13 @@ public class MainScreen extends JFrame {
 					gen.deviationFromMajority));
 		}
 		hiringCostLabel.setText(String.format(HIRING_COST_LABEL, replaced));
+
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	public static void main(String[] args) {
