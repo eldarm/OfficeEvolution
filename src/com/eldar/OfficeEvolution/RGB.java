@@ -24,7 +24,9 @@ public class RGB {
 
 	private int mutateInt(int v, double mutationRate) {
 		// System.out.printf("\n%d %f\n", v, mutationRate);
-		v = mutationRate == 0.0 ? v : v + r.nextInt((int)(mutationRate * 256)) - (int)(mutationRate * 128);
+		v = mutationRate == 0.0 ? v
+				: v + r.nextInt((int) (mutationRate * 256))
+						- (int) (mutationRate * 128);
 		return v < 0 ? 0 : v > 255 ? 255 : v;
 	}
 
@@ -32,9 +34,9 @@ public class RGB {
 	 * Mutate the RGB color.
 	 */
 	public RGB(RGB c, double mutationRate) {
-		R = mutateInt(c.R,mutationRate);
-		G = mutateInt(c.G,mutationRate);
-		B = mutateInt(c.B,mutationRate);
+		R = mutateInt(c.R, mutationRate);
+		G = mutateInt(c.G, mutationRate);
+		B = mutateInt(c.B, mutationRate);
 	}
 
 	/**
@@ -61,6 +63,11 @@ public class RGB {
 	public Color getColor() {
 		// System.out.printf("%d %d %d", R, G, B);
 		return new Color(R, G, B);
+	}
+
+	private static int weight(int l, int r, double w) {
+		int rs = (int) Math.sqrt(l * l * (1 - w) + r * r * w);
+		return rs > 127 ? 127 : rs < 0 ? 0 : rs;
 	}
 
 	int R;

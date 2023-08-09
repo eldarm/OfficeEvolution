@@ -26,7 +26,7 @@ public class MainScreen extends JFrame {
 	 */
 	private static final long serialVersionUID = 7658583780168366268L;
 	private JPanel controlPanel;
-	//private JPanel paintPanel;
+	// private JPanel paintPanel;
 	private Canvas paintPanel;
 	private JTextField attritionTextField;
 	private JTextField managementErrorsTextField;
@@ -40,12 +40,15 @@ public class MainScreen extends JFrame {
 	private JLabel hiringCostLabel;
 	private JLabel devTargetLabel;
 	private JLabel devMajorityLabel;
+	private JPanel majorityToTargetPanel;
+	private JLabel majorityToTargetLabel;
 
 	private final static String HIRING_COST_LABEL = "Hiring cost: %d 🍄";
 	private final static String DEV_TARGET_LABEL = "Deviation from target: %f";
 	private final static String DEV_MAJORITY_LABEL = "Deviation from majority: %f";
-	
-	private final static Dimension minSize = new Dimension(0, 300); //?
+	private final static String MAJORITY_TO_TARGET_LABEL = "Majority - target distance: %f";
+
+	private final static Dimension minSize = new Dimension(0, 300); // ?
 
 	private JTextField addParam(String text, String defValue,
 			JTextField textField) {
@@ -56,7 +59,7 @@ public class MainScreen extends JFrame {
 		panel.add(label);
 		textField = new JTextField(defValue);
 		textField.setHorizontalAlignment(JTextField.LEFT);
-		textField.setMinimumSize(minSize); //?
+		textField.setMinimumSize(minSize); // ?
 		panel.add(textField);
 		controlPanel.add(panel);
 		return textField;
@@ -142,7 +145,8 @@ public class MainScreen extends JFrame {
 
 		// How new members are selected.
 		{
-			var selectionCriteriaPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+			var selectionCriteriaPanel = new JPanel(
+					new FlowLayout(FlowLayout.RIGHT));
 			selectionCriteriaPanel.setBackground(Color.BLUE);
 			var selectionCriteriaLabel = new JLabel("Selection to replace:");
 			selectionCriteriaLabel.setForeground(Color.YELLOW);
@@ -162,7 +166,8 @@ public class MainScreen extends JFrame {
 
 		// How new members are formed.
 		{
-			var newMembersCriteriaPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+			var newMembersCriteriaPanel = new JPanel(
+					new FlowLayout(FlowLayout.RIGHT));
 			newMembersCriteriaPanel.setBackground(Color.BLUE);
 			var newMembersCriteriaLabel = new JLabel("Base for replacement:");
 			newMembersCriteriaLabel.setForeground(Color.YELLOW);
@@ -204,16 +209,26 @@ public class MainScreen extends JFrame {
 		devMajorityLabel.setForeground(Color.YELLOW);
 		controlPanel.add(devMajorityLabel);
 
+		// Output: majority to target distance.
+		{
+			majorityToTargetPanel = new JPanel();
+			majorityToTargetLabel = new JLabel(
+					String.format(MAJORITY_TO_TARGET_LABEL, 0.0));
+			majorityToTargetLabel.setForeground(Color.YELLOW);
+			majorityToTargetPanel.add(majorityToTargetLabel);
+			controlPanel.add(majorityToTargetPanel);
+		}
+
 		// Placeholder to fix Java problem with layouts.
 		// controlPanel.add(new JLabel("---"));
 
 		// Main panel to draw the results.
-		//paintPanel = new JPanel();
+		// paintPanel = new JPanel();
 		paintPanel = new Canvas();
 		final int paintIndent = controlPanel.getWidth() + controlIndent;
 		paintPanel.setBounds(paintIndent, 10,
 				width - paintIndent - controlIndent, height - 40);
-		//paintPanel.setLayout(null);
+		// paintPanel.setLayout(null);
 		paintPanel.setBackground(Color.lightGray);
 		globalPanel.add(paintPanel);
 	}
@@ -296,7 +311,7 @@ public class MainScreen extends JFrame {
 		int wTargetEnd = targetOffset + 18;
 		Generation gen = new Generation(wDraw, getParams());
 
-		for (int row = 0; row < d.height; row++) {
+		for (int row = 0; row < d.height && gen.getSize() > 0; row++) {
 			// System.out.printf("%d\n", row);
 			RGB[] points = gen.getPoints();
 			int pSize = gen.getSize();
@@ -319,6 +334,15 @@ public class MainScreen extends JFrame {
 					gen.deviationFromMajority));
 		}
 		hiringCostLabel.setText(String.format(HIRING_COST_LABEL, replaced));
+		double dev = gen.average.Distance(gen.target);
+		majorityToTargetLabel
+				.setText(String.format(MAJORITY_TO_TARGET_LABEL, dev));
+		majorityToTargetPanel.setBackground(dev < 0.1 ? new Color(0, 200, 0)
+				: dev < 0.2 ? new Color(70, 180, 0)
+						: dev < 0.3 ? new Color(140, 110, 0)
+								: dev < 0.4 ? new Color(210, 60, 0)
+										: new Color(255, 0, 0));
+		majorityToTargetPanel.repaint();
 
 		try {
 			Thread.sleep(1000);

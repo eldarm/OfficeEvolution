@@ -39,7 +39,8 @@ public class Generation {
 	// Must be in the same order as enum value underneath.
 	public final static String[] COMPANY_LABELS = { "Heaven", "Hell",
 			"Low Selective", "Too selective", "Balanced selection",
-			"Poor managers", "Fire at random", "Changing world", "With layoffs" };
+			"Poor managers", "Fire at random", "Changing world",
+			"With layoffs", "Market Pressure" };
 	public final static int COMPANY_HEAVEN = 0;
 	public final static int COMPANY_HELL = 1;
 	public final static int COMPANY_LOW_SELECTIVE = 2;
@@ -49,6 +50,11 @@ public class Generation {
 	public final static int COMPANY_RANDOM_FIRE = 6;
 	public final static int COMPANY_CHANGING_WORLD = 7;
 	public final static int COMPANY_LAYOFFFS = 8;
+	public final static int COMPANY_MARKET_PRESSURE = 9;
+
+	// Max distance from the target to the majority opinion in the company
+	// on which market pressure is not applied.
+	public final static double maxDistance = 0.2;
 
 	public RGB target = new RGB();
 	public RGB average = target; // new RGB();
@@ -180,6 +186,17 @@ public class Generation {
 			r.recoveryInc = 0.01;
 			r.marketPressure = 0.0;
 			break;
+		case COMPANY_MARKET_PRESSURE:
+			r.attrition = 0.1;
+			r.managementErrors = 0.0;
+			r.mutationRate = 0.0;
+			r.selectionMode = SELECTION_TARGET;
+			r.mutationSource = SELECION_NONE;
+			r.changeTargetEvery = 0;
+			r.layoffVolume = 0.0;
+			r.recoveryInc = 0.01;
+			r.marketPressure = 0.02;
+			break;
 
 		default: // Same as for COMPANY_HEAVEN.
 			r.attrition = 0.0;
@@ -201,29 +218,43 @@ public class Generation {
 		};
 	}
 
+	private double fitDouble(double val, double low, double high) {
+		return val < low ? low : val > high ? high : val;
+	}
+
 	/**
 	 * Generate a new generation. Done in place, the same instance of
 	 * Generation.
 	 */
 	public void nextGeneration() {
 		generationCount++;
+		System.out.println("Distance to target: " + target.Distance(average));
 		if (prm.changeTargetEvery != 0
 				&& generationCount % prm.changeTargetEvery == 0) {
 			target = new RGB();
 			if (prm.layoffVolume > 0) {
-				if (prm.layoffVolume > 0.8) {
-					// Don't let user overdo it.
-					prm.layoffVolume = 0.8;
-				}
-				size = (int) (maxSize * (1 - prm.layoffVolume));
+				size = (int) (size
+						* (1 - fitDouble(prm.layoffVolume, 0.0, 0.8)));
 			}
-		} else if (size < maxSize && prm.recoveryInc > 0) {
-			int incr = (int) (size * prm.recoveryInc);
+		} else if (generationCount != 0
+				&& target.Distance(average) > maxDistance) {
+			// Apply market pressure, no recovery.
+			System.out.println("Market pressure: " + prm.marketPressure);
+			if (prm.marketPressure > 0) {
+				size = (int) (size
+						* (1 - fitDouble(prm.marketPressure, 0.0, 0.8)));
+			}
+
+		} else if (size < maxSize ) {
+			// Recovery from layoffs and market pressure.
+			System.out.println("Size: " + size);
+			double recoveryRate = prm.recoveryInc > 0 ? prm.recoveryInc : 0.01;
+			int incr = (int) (size * recoveryRate);
 			if (incr + size > maxSize) {
 				incr = maxSize - size;
 			}
 			int offset = incr / 2;
-			incr = offset*2; // Guaranteed that size + incr < maxSize
+			incr = offset * 2; // Guaranteed that size + incr < maxSize
 			for (int i = size - 1; i >= 0; i--) {
 				drones[i + offset] = drones[i];
 			}
@@ -232,7 +263,8 @@ public class Generation {
 			}
 			for (int i = size + offset; i < size + incr; i++) {
 				drones[i] = generateNewHire();
-			};
+			}
+			;
 			size += incr;
 		}
 
