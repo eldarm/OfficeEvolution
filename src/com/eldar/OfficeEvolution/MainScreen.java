@@ -1,5 +1,6 @@
 package OfficeEvolution;
 
+import java.awt.BorderLayout;
 import java.awt.Canvas;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -8,7 +9,12 @@ import java.awt.Graphics;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 
+import javax.imageio.ImageIO;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
@@ -26,8 +32,8 @@ public class MainScreen extends JFrame {
 	 */
 	private static final long serialVersionUID = 7658583780168366268L;
 	private JPanel controlPanel;
-	// private JPanel paintPanel;
 	private Canvas paintPanel;
+	// private Canvas paintPanel;
 	private JTextField attritionTextField;
 	private JTextField managementErrorsTextField;
 	private JTextField mutationRateTextField;
@@ -80,12 +86,14 @@ public class MainScreen extends JFrame {
 		globalPanel.setSize(new Dimension(width, height));
 		getContentPane().add(globalPanel);
 
-		controlPanel = new JPanel(new GridLayout(0, 1));
-		controlPanel.setLocation(1, 1);
-		controlPanel.setSize(new Dimension(controlWidth, height));
-		// controlPanel.setBounds(0, 0, controlWidth, height);
-		controlPanel.setBackground(Color.BLUE);
-		globalPanel.add(controlPanel);
+		{
+			controlPanel = new JPanel(new GridLayout(0, 1));
+			controlPanel.setLocation(1, 1);
+			controlPanel.setSize(new Dimension(controlWidth, height));
+			// controlPanel.setBounds(0, 0, controlWidth, height);
+			controlPanel.setBackground(Color.BLUE);
+			globalPanel.add(controlPanel);
+		}
 
 		// Run button.
 		{
@@ -222,15 +230,19 @@ public class MainScreen extends JFrame {
 		// Placeholder to fix Java problem with layouts.
 		// controlPanel.add(new JLabel("---"));
 
+		{
 		// Main panel to draw the results.
-		// paintPanel = new JPanel();
+		//paintPanel = new JPanel(new BorderLayout());
 		paintPanel = new Canvas();
 		final int paintIndent = controlPanel.getWidth() + controlIndent;
 		paintPanel.setBounds(paintIndent, 10,
 				width - paintIndent - controlIndent, height - 40);
+		System.out.println(paintPanel.getSize());
 		// paintPanel.setLayout(null);
+		//paintPanel.setLayout(new BorderLayout());
 		paintPanel.setBackground(Color.lightGray);
 		globalPanel.add(paintPanel);
+		}
 	}
 
 	private double paramToDouble(String name, JTextField v, double deflt) {
