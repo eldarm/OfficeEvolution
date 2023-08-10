@@ -1,6 +1,5 @@
 package OfficeEvolution;
 
-import java.awt.BorderLayout;
 import java.awt.Canvas;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -9,12 +8,7 @@ import java.awt.Graphics;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
 
-import javax.imageio.ImageIO;
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
@@ -33,7 +27,6 @@ public class MainScreen extends JFrame {
 	private static final long serialVersionUID = 7658583780168366268L;
 	private JPanel controlPanel;
 	private Canvas paintPanel;
-	// private Canvas paintPanel;
 	private JTextField attritionTextField;
 	private JTextField managementErrorsTextField;
 	private JTextField mutationRateTextField;
@@ -65,7 +58,6 @@ public class MainScreen extends JFrame {
 		panel.add(label);
 		textField = new JTextField(defValue);
 		textField.setHorizontalAlignment(JTextField.LEFT);
-		textField.setMinimumSize(minSize); // ?
 		panel.add(textField);
 		controlPanel.add(panel);
 		return textField;
